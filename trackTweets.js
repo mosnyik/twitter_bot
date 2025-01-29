@@ -3,7 +3,7 @@ const { TwitterApi } = require("twitter-api-v2");
 
 // init the client
 const client =
-  //   new TwitterApi(process.env.BEARER_TOKEN);
+  // new TwitterApi(process.env.BEARER_TOKEN);
   new TwitterApi({
     appKey: process.env.API_KEY,
     appSecret: process.env.API_SECRET,
@@ -37,6 +37,41 @@ async function listenForTweet(handle) {
   }
 }
 
+async function checkTweetFroString(handle) {
+  try {
+    const user = await client.v2.userByUsername(handle);
+    const userId = user.data.id;
+    console.log("UserId", userId);
+    const tweets = await client.v2.userTimeline(userId, { max_results: 10 });
+    const searchString = "1 USD ⇛ ₦";
+    console.log("Tweet", tweets);
+    // console.log("Tweet data", tweets.data);
+
+    if (Array.isArray(tweets.data)){
+
+      const targetTweet = tweets.data.find((tweet) =>
+        tweet.data.text.inculdes(searchString)
+      );
+
+      if(targetTweet){
+        const match = targetTweet.text.match(/💵 1 USD ⇛ ₦ ([\d,] + \.\d+)/);
+        if(match){
+          const usdToNaira =match[0]
+          console.log(`Most recent exchange rate is ₦${usdToNaira}`)
+        }else{
+          console.log(`No exchange rate found in this tweet`)
+        }
+      }else{
+        console.log('No matching tweet')
+      }
+    }else{
+      console.log("tweets.data is not an array")
+    }
+  } catch (err) {
+    console.log("Error occured:", err);
+  }
+}
 // listenForTweet("mosnyik");
-listenForTweet("naira_rates");
+// listenForTweet("naira_rates");
+checkTweetFroString("naira_rates");
 // console.log("Tweet monitoring...", client);
