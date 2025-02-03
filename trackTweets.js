@@ -70,7 +70,7 @@ async function listenForTweet(handle) {
 
 checkTweetFroString("naira_rates").then((result) => {
   if (result) {
-    console.log("dollar is: ", result);
+    console.log("dollar now is: ", result);
   } else {
     console.log("No USD rate found.");
   }
